@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Assembly>C:\Users\kong\source\repos\RevitCodePad\RevitCodePad\bin\Debug\RevitCodePad.dll</Assembly>
+    <AddInId>7d4e1893-3a27-4df2-8075-4fa3754537aa</AddInId>\
+	<Name>RevitCodePad</Name>
+    <FullClassName>RevitCodePad.RevitCodePad</FullClassName>
+    <VisibilityMode>AlwaysVisible</VisibilityMode>
+    <VendorId>ADSK</VendorId>
+  </AddIn>
+</RevitAddIns>
