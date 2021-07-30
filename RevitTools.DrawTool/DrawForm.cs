@@ -42,7 +42,7 @@ namespace RevitTools.DrawTool
         private int i;
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            (this).Invoke(() =>
+            FormExtensionMethods.Invoke(this, () =>
             {
                 var position = Control.MousePosition;
                 if (position == this.Point)

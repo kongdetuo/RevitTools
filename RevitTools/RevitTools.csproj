@@ -110,7 +110,7 @@
       <Name>RevitTools.Utils</Name>
     </ProjectReference>
     <ProjectReference Include="..\ScriptPad\ScriptPad.csproj">
-      <Project>{5faf98aa-617d-4633-a1eb-2bf3ecec1bf8}</Project>
+      <Project>{6b6bd7be-dd88-4ddf-a447-a2b59bb7f826}</Project>
       <Name>ScriptPad</Name>
     </ProjectReference>
   </ItemGroup>
