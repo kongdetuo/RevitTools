@@ -82,9 +82,9 @@ namespace ScriptPad.Editor
             for (int i = 0; i < document.TextLength; i++)
             {
                 var c = document.GetCharAt(i);
-                if (c == '\n' || c == '\r')
+                if (Is(document.Text, i, "\r\n"))
                 {
-                    lastNewLineOffset = i + 1;
+                    lastNewLineOffset++;
                     continue;
                 }
                 foreach (var item in foldingStrategies)
@@ -92,17 +92,19 @@ namespace ScriptPad.Editor
                     if (Is(document.Text, i, item.startToken))
                     {
                         startOffsets.Push(i);
+                        i += item.endToken.Length;
                     }
                     else if (Is(document.Text, i, item.endToken) && startOffsets.Count > 0)
                     {
                         var startOffset = startOffsets.Pop();
 
-                        if (startOffset < lastNewLineOffset)
+                        if (startOffset < i)
                         {
                             var folding = new NewFolding(startOffset, i + 1);
                             SetName(folding);
                             newFoldings.Add(folding);
                         }
+                        i += item.endToken.Length;
                     }
                 }
             }
@@ -112,7 +114,7 @@ namespace ScriptPad.Editor
 
         private bool Is(string source, int index, string str)
         {
-            if (index + str.Length >= source.Length)
+            if (index + str.Length > source.Length)
             {
                 return false;
             }

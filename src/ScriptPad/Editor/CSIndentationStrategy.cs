@@ -14,24 +14,34 @@ namespace ScriptPad
                 throw new ArgumentNullException("document");
             if (line == null)
                 throw new ArgumentNullException("line");
+
             DocumentLine previousLine = line.PreviousLine;
             if (previousLine != null)
             {
                 ISegment indentationSegment = TextUtilities.GetWhitespaceAfter(document, previousLine.Offset);
                 string indentation = document.GetText(indentationSegment);
 
-                var c = document.GetCharAt(previousLine.EndOffset - 1);
-                if(c == '{')
+                if (previousLine.EndOffset > 0)
                 {
-                    indentation += IndentationString;
+                    var c = document.GetCharAt(previousLine.EndOffset - 1);
+                    if (c == '{')
+                    {
+                        //indentation += IndentationString;
+                        indentationSegment = TextUtilities.GetWhitespaceAfter(document, line.Offset);
+                        document.Replace(indentationSegment.Offset, indentationSegment.Length, indentation, OffsetChangeMappingType.RemoveAndInsert);
+                    }
+                    else
+                    {
+                        indentationSegment = TextUtilities.GetWhitespaceAfter(document, line.Offset);
+                        document.Replace(indentationSegment.Offset, indentationSegment.Length, indentation, OffsetChangeMappingType.RemoveAndInsert);
+                    }
+
+    
                 }
 
-                // copy indentation to line
-                indentationSegment = TextUtilities.GetWhitespaceAfter(document, line.Offset);
-                document.Replace(indentationSegment.Offset, indentationSegment.Length, indentation,
-                                 OffsetChangeMappingType.RemoveAndInsert);
-                // OffsetChangeMappingType.RemoveAndInsert guarantees the caret moves behind the new indentation.
+
             }
+
         }
 
         public void IndentLines(ICSharpCode.AvalonEdit.Document.TextDocument document, int beginLine, int endLine)

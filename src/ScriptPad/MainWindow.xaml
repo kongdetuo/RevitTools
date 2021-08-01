@@ -6,6 +6,16 @@
         xmlns:local="clr-namespace:ScriptPad"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
+    <Window.Resources>
+        <RoutedCommand x:Key="runCommand" />
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{StaticResource runCommand}"/>
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource runCommand}"
+                        Executed="RunCommand_Executed"/>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>

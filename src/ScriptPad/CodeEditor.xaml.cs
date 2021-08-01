@@ -17,6 +17,8 @@ using System.Windows.Threading;
 using ScriptPad.Editor;
 using ScriptPad.Roslyn;
 using ReactiveUI;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace ScriptPad
 {
@@ -28,7 +30,6 @@ namespace ScriptPad
         private CompletionWindow completionWindow;
         private CancellationTokenSource completionCancellation;
         private TextMarkerService markerService;
-        readonly ReactiveUI.IReactiveCommand command;
 
         public TextContainer Container { get; private set; }
 
@@ -39,15 +40,6 @@ namespace ScriptPad
         public CodeEditor(string path = null)
         {
             InitializeComponent();
-
-
-
-
-
-            command = ReactiveUI.ReactiveCommand.Create(() =>
-            {
-                return 1;
-            });
 
             // 需要提升效率, 暂时不用
             codeEditor.TextArea.TextEntering += textEditor_TextArea_TextEntering;
@@ -67,25 +59,23 @@ namespace ScriptPad
             this.codeEditor.Text = Script.Text;
             ICSharpCode.AvalonEdit.Search.SearchPanel.Install(codeEditor);
 
-            codeEditor.TextArea.IndentationStrategy = new CSIndentationStrategy();
+            //codeEditor.TextArea.IndentationStrategy = new CSIndentationStrategy();
 
-            // 这个也有效率问题
-            //var csFoldingStrategy = new CSharpFoldingStrategy();
-            //var foldingManager = FoldingManager.Install(codeEditor.TextArea);
 
-            //DispatcherTimer foldingUpdateTimer = new DispatcherTimer();
-            //foldingUpdateTimer.Interval = TimeSpan.FromSeconds(1);
-            //foldingUpdateTimer.Tick += (o, e) =>
-            //{
-            //    csFoldingStrategy.UpdateFoldings(foldingManager, codeEditor.Document);
-            //};
-            //foldingUpdateTimer.Start();
+            var csFoldingStrategy = new CSharpFoldingStrategy();
+            var foldingManager = FoldingManager.Install(codeEditor.TextArea);
+            var ob = Observable.FromEventPattern(this.codeEditor, "TextChanged")
+                .Throttle(TimeSpan.FromMilliseconds(200))
+                .ObserveOnDispatcher()
+                .Subscribe(p => csFoldingStrategy.UpdateFoldings(foldingManager, codeEditor.Document));
 
             // 需要提升效率
             markerService = new TextMarkerService(codeEditor, this.Script);
 
             this.Container = new TextContainer(this.codeEditor.Document);
         }
+
+
 
         /// <summary>
         /// 关闭代码编辑窗口
@@ -120,14 +110,40 @@ namespace ScriptPad
                     completionWindow.CompletionList.RequestInsertion(e);
 
                 }
+
             }
+        }
+
+        private bool TryCompleteBracket(TextCompositionEventArgs e)
+        {
+            if (e.Text.Last() == '{')
+            {
+                codeEditor.Document.Insert(codeEditor.CaretOffset, "}");
+                codeEditor.CaretOffset--;
+                return true;
+            }
+            else if (e.Text.Last() == '(')
+            {
+                codeEditor.Document.Insert(codeEditor.CaretOffset, ")");
+                codeEditor.CaretOffset--;
+                return true;
+            }
+            if (e.Text.Last() == '[')
+            {
+                codeEditor.Document.Insert(codeEditor.CaretOffset, "]");
+                codeEditor.CaretOffset--;
+                return true;
+            }
+            return false;
         }
 
         private async void textEditor_TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
-
             try
             {
+                if (TryCompleteBracket(e))
+                    return;
+
                 char? triggerChar = e.Text.FirstOrDefault();
 
                 completionCancellation = new CancellationTokenSource();
@@ -221,6 +237,11 @@ namespace ScriptPad
         }
 
         private async void runBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await Run();
+        }
+
+        public async Task Run()
         {
             try
             {

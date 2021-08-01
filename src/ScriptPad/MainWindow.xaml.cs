@@ -109,5 +109,12 @@ namespace ScriptPad
                 .Select(editor => editor.Script.Name)
                 .ToList();
         }
+
+        private async void RunCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var tabItem = this.tc.SelectedItem as TabItem;
+            var codeEditor = tabItem.Content as CodeEditor;
+            await codeEditor.Run();
+        }
     }
 }
