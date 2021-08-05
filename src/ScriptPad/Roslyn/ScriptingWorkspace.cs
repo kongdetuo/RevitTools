@@ -73,6 +73,11 @@ namespace ScriptPad.Roslyn
             OnDocumentTextChanged(documentId, SourceText.From(text, Encoding.UTF8), PreservationMode.PreserveValue);
         }
 
+        public void UpdateText(DocumentId documentid, SourceText text)
+        {
+            OnDocumentTextChanged(documentid, text, PreservationMode.PreserveValue);
+        }
+
         public Task<IReadOnlyList<Diagnostic>> GetDiagnosticsAsync(DocumentId documentId, CancellationToken cancellationToken)
         {
             return Task.Run(async () =>

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ScriptPad.Roslyn;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ScriptPad
 {
@@ -175,24 +176,15 @@ namespace ScriptPad
             IsChanged = false;
         }
 
-        /// <summary>
-        /// 更新脚本内容
-        /// </summary>
-        /// <param name="newText"></param>
-        public void UpdateText(string newText)
-        {
-            if (Text == newText)
-                return;
-
-            IsChanged = true;
-            this.Text = newText;
-            Workspace.UpdateText(ID, newText);
-        }
-
         public void UpdateText(Document document)
         {
             IsChanged = true;
             Workspace.TryApplyChanges(document.Project.Solution);
+        }
+
+        public void UpdateText(SourceText sourceText)
+        {
+            Workspace.UpdateText(ID,sourceText);
         }
 
         internal IEnumerable<MetadataReference> GetReferences()

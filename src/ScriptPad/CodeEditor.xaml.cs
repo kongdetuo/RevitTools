@@ -42,9 +42,8 @@ namespace ScriptPad
             InitializeComponent();
 
             // 需要提升效率, 暂时不用
-            codeEditor.TextArea.TextEntering += textEditor_TextArea_TextEntering;
+
             codeEditor.TextArea.TextEntered += textEditor_TextArea_TextEntered;
-            codeEditor.TextChanged += CodeEditor_TextChanged;
 
             if (string.IsNullOrEmpty(path))
             {
@@ -58,23 +57,28 @@ namespace ScriptPad
 
             this.codeEditor.Text = Script.Text;
             ICSharpCode.AvalonEdit.Search.SearchPanel.Install(codeEditor);
-
+            
             //codeEditor.TextArea.IndentationStrategy = new CSIndentationStrategy();
 
 
             var csFoldingStrategy = new CSharpFoldingStrategy();
             var foldingManager = FoldingManager.Install(codeEditor.TextArea);
-            var ob = Observable.FromEventPattern(this.codeEditor, "TextChanged")
+            this.codeEditor.GetTextChangeds().StartWith(EventArgs.Empty)
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .ObserveOnDispatcher()
                 .Subscribe(p => csFoldingStrategy.UpdateFoldings(foldingManager, codeEditor.Document));
+
+            this.codeEditor.TextArea.GetTextEnterings()
+                .Where(p => p.Text.Length > 0 && !IsAllowedLanguageLetter(p.Text[0]))
+                .Subscribe(p => completionWindow?.CompletionList.RequestInsertion(p));
 
             // 需要提升效率
             markerService = new TextMarkerService(codeEditor, this.Script);
 
             this.Container = new TextContainer(this.codeEditor.Document);
+            Observable.FromEventPattern(this.Container, nameof(this.Container.TextChanged))
+                .Subscribe(p => this.Script.UpdateText((p.Sender as TextContainer).CurrentText));
         }
-
 
 
         /// <summary>
@@ -96,23 +100,6 @@ namespace ScriptPad
             }
         }
 
-        private void CodeEditor_TextChanged(object sender, EventArgs e)
-        {
-            Script.UpdateText(codeEditor.Text);
-        }
-
-        private void textEditor_TextArea_TextEntering(object sender, TextCompositionEventArgs e)
-        {
-            if (e.Text.Length > 0 && completionWindow != null)
-            {
-                if (!IsAllowedLanguageLetter(e.Text[0]))
-                {
-                    completionWindow.CompletionList.RequestInsertion(e);
-
-                }
-
-            }
-        }
 
         private bool TryCompleteBracket(TextCompositionEventArgs e)
         {
@@ -270,7 +257,7 @@ namespace ScriptPad
 
             document.BeginUpdate();
             var line = startLine;
-            while (line.LineNumber <= endLine.LineNumber)
+            while (line != null && line.LineNumber <= endLine.LineNumber)
             {
                 var whitespace = TextUtilities.GetLeadingWhitespace(document, line);
                 if (line.Length > whitespace.Length)
@@ -291,7 +278,7 @@ namespace ScriptPad
 
             document.BeginUpdate();
             var line = startLine;
-            while (line.LineNumber <= endLine.LineNumber)
+            while (line != null && line.LineNumber <= endLine.LineNumber)
             {
                 var whitespace = TextUtilities.GetLeadingWhitespace(document, line);
                 if (line.Length > whitespace.Length + 2)

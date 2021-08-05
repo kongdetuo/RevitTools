@@ -56,20 +56,29 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AddReferenceWindow.xaml.cs" />
+    <Compile Include="AddReferenceWindow.xaml.cs">
+      <DependentUpon>AddReferenceWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeEditor.xaml.cs" />
+    <Compile Include="CodeEditor.xaml.cs">
+      <DependentUpon>CodeEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\BraceFoldingStrategy.cs" />
     <Compile Include="Editor\CodeCompletionData.cs" />
+    <Compile Include="Editor\CodeEditorReactiveExtensions.cs" />
     <Compile Include="Editor\CSIndentationStrategy.cs" />
     <Compile Include="Editor\TextContainer.cs" />
     <Compile Include="Editor\TextMarker.cs" />
     <Compile Include="Editor\TextMarkerService.cs" />
-    <Compile Include="MainWindow.xaml.cs" />
-    <Compile Include="ReferenceWindow.xaml.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ReferenceWindow.xaml.cs">
+      <DependentUpon>ReferenceWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Resource\ImageResource.cs" />
     <Compile Include="Roslyn\ErrorListItem.cs" />
     <Compile Include="Roslyn\ErrorSeverity.cs" />
@@ -108,20 +117,20 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="AddReferenceWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="CodeEditor.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="ReferenceWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="Resource\ImageResource.xaml">
       <Generator>MSBuild:Compile</Generator>
